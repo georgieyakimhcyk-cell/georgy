@@ -4,366 +4,234 @@ import streamlit as st
 st.set_page_config(
     page_title="Формулы по физике",
     page_icon="⚛️",
-    layout="centered",  # Для мобилок лучше centered
-    initial_sidebar_state="expanded"  # Меню открыто по умолчанию
+    layout="centered",
+    initial_sidebar_state="expanded"
 )
 
-# Красивые CSS-стили для мобильной версии
+# СТИЛИ ДЛЯ ЗАМЕТНОЙ КНОПКИ МЕНЮ
 st.markdown("""
 <style>
-    /* Улучшаем внешний вид радио-кнопок */
-    div.row-widget.stRadio > div {
-        flex-direction: column;
-        background-color: #f0f2f6;
-        padding: 15px;
-        border-radius: 10px;
-        margin: 10px 0;
+    /* Делаем кнопку меню (бургер) огромной и яркой */
+    button[data-testid="baseButton-header"] {
+        background: linear-gradient(135deg, #ff4b4b 0%, #ff6b6b 100%) !important;
+        border: 3px solid white !important;
+        border-radius: 50% !important;
+        width: 60px !important;
+        height: 60px !important;
+        box-shadow: 0 0 30px rgba(255, 75, 75, 0.7) !important;
+        position: fixed !important;
+        top: 10px !important;
+        left: 10px !important;
+        z-index: 999999 !important;
+        animation: pulse 2s infinite !important;
     }
     
-    div.row-widget.stRadio > div > label {
-        background-color: white;
-        padding: 12px 15px;
-        margin: 5px 0;
-        border-radius: 8px;
-        border-left: 4px solid #ff4b4b;
-        font-weight: 500 !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        transition: all 0.2s;
+    /* Анимация пульсации */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); box-shadow: 0 0 50px rgba(255, 75, 75, 0.9); }
+        100% { transform: scale(1); }
     }
     
-    div.row-widget.stRadio > div > label:hover {
-        transform: translateX(5px);
-        background-color: #f9f9f9;
-        border-left-color: #ff6b6b;
+    /* Иконка внутри кнопки (три полоски) */
+    button[data-testid="baseButton-header"] svg {
+        width: 30px !important;
+        height: 30px !important;
+        fill: white !important;
+    }
+    
+    /* Когда меню открыто - кнопка меняется */
+    button[data-testid="baseButton-header"][aria-expanded="true"] {
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%) !important;
+        transform: rotate(90deg);
+    }
+    
+    /* Текст-подсказка над кнопкой */
+    .menu-hint {
+        position: fixed;
+        top: 80px;
+        left: 20px;
+        background: #333;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 50px;
+        font-size: 18px;
+        font-weight: bold;
+        z-index: 999998;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        border-left: 5px solid #ff4b4b;
+        animation: slideIn 1s;
+    }
+    
+    @keyframes slideIn {
+        from { left: -200px; }
+        to { left: 20px; }
+    }
+    
+    /* Стрелка указывает на кнопку */
+    .menu-hint:after {
+        content: "👆";
+        position: absolute;
+        top: -30px;
+        left: 30px;
+        font-size: 40px;
+        animation: bounce 1s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    /* Затемнение фона когда меню открыто */
+    section[data-testid="stSidebar"][aria-expanded="true"] {
+        box-shadow: 0 0 50px rgba(0,0,0,0.5) !important;
     }
     
     /* Для мобильных устройств */
     @media (max-width: 768px) {
-        div.row-widget.stRadio > div > label {
-            padding: 15px 20px;
-            font-size: 18px;
+        /* Само меню делаем красивее */
+        section[data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%) !important;
+            padding-top: 80px !important;
         }
         
-        /* Увеличиваем шрифт формул */
-        .stMarkdown, .stLatex {
-            font-size: 20px !important;
+        /* Кнопки в меню */
+        .stRadio > div {
+            gap: 15px !important;
+            padding: 15px !important;
         }
         
-        /* Делаем кнопки больше */
-        .stButton button {
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
+        .stRadio label {
+            background: rgba(255,255,255,0.2) !important;
+            border: 2px solid rgba(255,255,255,0.3) !important;
+            border-radius: 15px !important;
+            padding: 20px !important;
+            font-size: 22px !important;
+            font-weight: bold !important;
+            color: white !important;
+            text-align: center !important;
+            margin: 5px 0 !important;
         }
-    }
-    
-    /* Карточки для формул */
-    .formula-card {
-        background-color: white;
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        margin: 20px 0;
-        border-left: 5px solid #ff4b4b;
-    }
-    
-    .formula-name {
-        color: #666;
-        font-size: 18px;
-        margin-bottom: 10px;
-        font-weight: 500;
-    }
-    
-    .formula-equation {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-        font-size: 24px !important;
+        
+        .stRadio label:hover {
+            background: rgba(255,255,255,0.3) !important;
+            transform: scale(1.02);
+        }
+        
+        /* Выбранный пункт */
+        .stRadio label[data-baseweb="radio"]:has(input:checked) {
+            background: #ffd700 !important;
+            color: #333 !important;
+            border: 2px solid white !important;
+            box-shadow: 0 0 30px gold !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Заголовок
-st.title("⚛️ Формулы по физике")
-st.markdown("### Справочник основных формул с пояснениями")
+# Подсказка для пользователя
+st.markdown("""
+<div class="menu-hint">
+    👈 Нажми на красную кнопку чтобы открыть меню!
+</div>
+""", unsafe_allow_html=True)
 
-# --- Сайдбар с навигацией ---
-st.sidebar.title("📚 Разделы")
+# Заголовок
+st.markdown("<h1 style='text-align: center; margin-top: 100px;'>⚛️ Формулы по физике</h1>", unsafe_allow_html=True)
+st.markdown("---")
+
+# --- Сайдбар с разделами ---
+st.sidebar.markdown("# 📚 РАЗДЕЛЫ ФИЗИКИ")
+
+# Радио-кнопки для выбора раздела
 section = st.sidebar.radio(
-    "Выберите раздел:",
-    ["Механика", "Молекулярная физика и термодинамика", "Электричество и магнетизм", "Оптика", "Квантовая физика"],
-    index=0  # По умолчанию выбран первый раздел
+    "Выбери раздел:",
+    ["Механика", "Молекулярная физика", "Электричество", "Оптика", "Квантовая физика"],
+    index=0
 )
 
-# Функция для отображения формулы с названием
-def show_formula(name, formula, description=""):
-    st.markdown(f"""
-    <div class="formula-card">
-        <div class="formula-name">{name}</div>
-        <div class="formula-equation">{formula}</div>
-        {f'<div style="color: #666; margin-top: 10px; font-size: 16px;">📝 {description}</div>' if description else ''}
-    </div>
-    """, unsafe_allow_html=True)
-
 # --- ОСНОВНОЙ КОНТЕНТ ---
-
-# 1. МЕХАНИКА
 if section == "Механика":
     st.header("📐 Механика")
     
-    # Используем колонки для лучшего отображения на телефоне
     col1, col2 = st.columns(2)
     
     with col1:
         st.subheader("Кинематика")
-        show_formula(
-            "Скорость при равноускоренном движении",
-            "v = v_0 + at",
-            "где v₀ — начальная скорость, a — ускорение, t — время"
-        )
-        show_formula(
-            "Перемещение",
-            "S = v_0t + \\frac{at^2}{2}",
-            "Путь при равноускоренном движении"
-        )
-        show_formula(
-            "Связь скоростей",
-            "v^2 - v_0^2 = 2aS",
-            "Без времени"
-        )
-        show_formula(
-            "Высота свободного падения",
-            "h = \\frac{gt^2}{2}",
-            "g ≈ 9.8 м/с² — ускорение свободного падения"
-        )
+        st.markdown("**Скорость:** $v = v_0 + at$")
+        st.markdown("**Перемещение:** $S = v_0t + \\frac{at^2}{2}$")
+        st.markdown("**Высота:** $h = \\frac{gt^2}{2}$")
         
         st.subheader("Динамика")
-        show_formula(
-            "Второй закон Ньютона",
-            "F = ma",
-            "Сила = масса × ускорение"
-        )
-        show_formula(
-            "Сила трения",
-            "F_{тр} = \\mu N",
-            "μ — коэффициент трения, N — сила реакции опоры"
-        )
-        show_formula(
-            "Сила упругости (закон Гука)",
-            "F_{упр} = -kx",
-            "k — жёсткость пружины, x — деформация"
-        )
-        show_formula(
-            "Закон всемирного тяготения",
-            "F = G\\frac{m_1 m_2}{R^2}",
-            "G = 6.67×10⁻¹¹ Н·м²/кг² — гравитационная постоянная"
-        )
+        st.markdown("**2-й закон Ньютона:** $F = ma$")
+        st.markdown("**Сила трения:** $F_{тр} = \\mu N$")
     
     with col2:
         st.subheader("Законы сохранения")
-        show_formula(
-            "Импульс тела",
-            "p = mv",
-            "Количество движения"
-        )
-        show_formula(
-            "Кинетическая энергия",
-            "E_k = \\frac{mv^2}{2}",
-            "Энергия движения"
-        )
-        show_formula(
-            "Потенциальная энергия",
-            "E_p = mgh",
-            "Энергия в поле тяжести"
-        )
-        show_formula(
-            "Работа силы",
-            "A = FS\\cos\\alpha",
-            "α — угол между силой и перемещением"
-        )
+        st.markdown("**Импульс:** $p = mv$")
+        st.markdown("**Кинетическая энергия:** $E_k = \\frac{mv^2}{2}$")
+        st.markdown("**Потенциальная энергия:** $E_p = mgh$")
         
-        st.subheader("Статика и колебания")
-        show_formula(
-            "Момент силы",
-            "M = F \\cdot l",
-            "l — плечо силы"
-        )
-        show_formula(
-            "Период математического маятника",
-            "T = 2\\pi\\sqrt{\\frac{l}{g}}",
-            "l — длина нити"
-        )
-        show_formula(
-            "Период пружинного маятника",
-            "T = 2\\pi\\sqrt{\\frac{m}{k}}",
-            "m — масса груза, k — жёсткость пружины"
-        )
+        st.subheader("Колебания")
+        st.markdown("**Маятник:** $T = 2\\pi\\sqrt{\\frac{l}{g}}$")
+        st.markdown("**Пружина:** $T = 2\\pi\\sqrt{\\frac{m}{k}}$")
 
-# 2. МОЛЕКУЛЯРНАЯ ФИЗИКА
-elif section == "Молекулярная физика и термодинамика":
-    st.header("🔥 Молекулярная физика и термодинамика")
+elif section == "Молекулярная физика":
+    st.header("🔥 Молекулярная физика")
     
-    col1, col2 = st.columns(2)
+    st.subheader("Газовые законы")
+    st.markdown("**Уравнение Менделеева-Клапейрона:** $pV = \\nu RT$")
+    st.markdown("**Внутренняя энергия:** $U = \\frac{3}{2}\\nu RT$")
     
-    with col1:
-        st.subheader("МКТ")
-        show_formula(
-            "Основное уравнение МКТ",
-            "p = \\frac{1}{3} m_0 n v^2",
-            "m₀ — масса молекулы, n — концентрация, v² — средний квадрат скорости"
-        )
-        show_formula(
-            "Связь давления с температурой",
-            "p = nkT",
-            "k = 1.38×10⁻²³ Дж/К — постоянная Больцмана"
-        )
-        show_formula(
-            "Внутренняя энергия идеального газа",
-            "U = \\frac{3}{2}RT",
-            "Для одного моля одноатомного газа"
-        )
-    
-    with col2:
-        st.subheader("Газовые законы и термодинамика")
-        show_formula(
-            "Уравнение Менделеева-Клапейрона",
-            "pV = \\nu RT",
-            "ν — количество вещества, R = 8.31 Дж/(моль·К)"
-        )
-        show_formula(
-            "Первый закон термодинамики",
-            "\\Delta U = Q - A",
-            "Изменение энергии = теплота − работа"
-        )
-        show_formula(
-            "КПД теплового двигателя",
-            "\\eta = \\frac{Q_1 - Q_2}{Q_1}",
-            "Q₁ — тепло от нагревателя, Q₂ — тепло холодильнику"
-        )
+    st.subheader("Термодинамика")
+    st.markdown("**1-й закон:** $\\Delta U = Q - A$")
+    st.markdown("**КПД:** $\\eta = \\frac{Q_1 - Q_2}{Q_1}$")
 
-# 3. ЭЛЕКТРИЧЕСТВО
-elif section == "Электричество и магнетизм":
-    st.header("⚡ Электричество и магнетизм")
+elif section == "Электричество":
+    st.header("⚡ Электричество")
     
     col1, col2 = st.columns(2)
     
     with col1:
         st.subheader("Электростатика")
-        show_formula(
-            "Закон Кулона",
-            "F = k\\frac{|q_1||q_2|}{r^2}",
-            "k = 9×10⁹ Н·м²/Кл²"
-        )
-        show_formula(
-            "Напряжённость поля",
-            "E = \\frac{F}{q}",
-            "Силовая характеристика поля"
-        )
-        show_formula(
-            "Ёмкость конденсатора",
-            "C = \\frac{q}{U}",
-            "Отношение заряда к напряжению"
-        )
+        st.markdown("**Закон Кулона:** $F = k\\frac{q_1q_2}{r^2}$")
+        st.markdown("**Напряжённость:** $E = \\frac{F}{q}$")
+        st.markdown("**Ёмкость:** $C = \\frac{q}{U}$")
     
     with col2:
-        st.subheader("Цепи постоянного тока")
-        show_formula(
-            "Закон Ома для участка цепи",
-            "I = \\frac{U}{R}",
-            "Сила тока = напряжение / сопротивление"
-        )
-        show_formula(
-            "Закон Ома для полной цепи",
-            "I = \\frac{\\varepsilon}{R + r}",
-            "ε — ЭДС, r — внутреннее сопротивление"
-        )
-        show_formula(
-            "Работа тока",
-            "A = IUt",
-            "A = мощность × время"
-        )
+        st.subheader("Цепи тока")
+        st.markdown("**Закон Ома:** $I = \\frac{U}{R}$")
+        st.markdown("**Работа тока:** $A = IUt$")
+        st.markdown("**Мощность:** $P = IU$")
 
-# 4. ОПТИКА
 elif section == "Оптика":
-    st.header("🔦 Оптика")
+    st.header("💡 Оптика")
     
-    col1, col2 = st.columns(2)
+    st.subheader("Геометрическая оптика")
+    st.markdown("**Формула линзы:** $\\frac{1}{F} = \\frac{1}{d} + \\frac{1}{f}$")
+    st.markdown("**Оптическая сила:** $D = \\frac{1}{F}$")
     
-    with col1:
-        st.subheader("Геометрическая оптика")
-        show_formula(
-            "Формула тонкой линзы",
-            "\\frac{1}{F} = \\frac{1}{d} + \\frac{1}{f}",
-            "F — фокусное расстояние, d — расстояние до предмета, f — до изображения"
-        )
-        show_formula(
-            "Оптическая сила",
-            "D = \\frac{1}{F}",
-            "Измеряется в диоптриях (дптр)"
-        )
-    
-    with col2:
-        st.subheader("Волновая оптика")
-        show_formula(
-            "Длина волны",
-            "\\lambda = \\frac{c}{\\nu}",
-            "c — скорость света, ν — частота"
-        )
-        show_formula(
-            "Условие интерференционного максимума",
-            "\\Delta d = k\\lambda",
-            "k = 0, 1, 2..."
-        )
+    st.subheader("Волновая оптика")
+    st.markdown("**Длина волны:** $\\lambda = \\frac{c}{\\nu}$")
+    st.markdown("**Интерференция:** $\\Delta d = k\\lambda$")
 
-# 5. КВАНТОВАЯ
 elif section == "Квантовая физика":
     st.header("✨ Квантовая физика")
     
-    col1, col2 = st.columns(2)
+    st.subheader("Фотоэффект")
+    st.markdown("**Энергия фотона:** $E = h\\nu$")
+    st.markdown("**Уравнение Эйнштейна:** $h\\nu = A_{вых} + \\frac{mv^2}{2}$")
     
-    with col1:
-        st.subheader("Фотоэффект")
-        show_formula(
-            "Энергия фотона",
-            "E = h\\nu",
-            "h = 6.63×10⁻³⁴ Дж·с — постоянная Планка"
-        )
-        show_formula(
-            "Уравнение Эйнштейна",
-            "h\\nu = A_{вых} + \\frac{mv^2}{2}",
-            "Энергия фотона = работа выхода + кинетическая энергия электрона"
-        )
-    
-    with col2:
-        st.subheader("Атомная физика")
-        show_formula(
-            "Постулат Бора",
-            "h\\nu = E_2 - E_1",
-            "Частота излучения при переходе между уровнями"
-        )
-        show_formula(
-            "Длина волны де Бройля",
-            "\\lambda = \\frac{h}{mv}",
-            "Волновые свойства частиц"
-        )
+    st.subheader("Атом")
+    st.markdown("**Постулат Бора:** $h\\nu = E_2 - E_1$")
+    st.markdown("**Длина волны де Бройля:** $\\lambda = \\frac{h}{mv}$")
 
 # Подвал
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
-    📚 <b>Сайт создан с помощью Streamlit</b> • 
-    Нажми на раздел слева, чтобы выбрать тему<br>
-    👆 На телефоне меню находится сверху слева (три полоски)
+<div style='text-align: center; color: #666; padding: 20px;'>
+    📱 Нажми на <span style='background: #ff4b4b; color: white; padding: 5px 10px; border-radius: 10px;'>🔴 красную кнопку</span> слева чтобы открыть меню
 </div>
 """, unsafe_allow_html=True)
-
-# Подсказка для мобильных
-st.sidebar.markdown("---")
-st.sidebar.markdown("""
-### 📱 Для телефона:
-- Меню находится здесь 👈
-- Нажми на раздел
-- Формулы появятся справа
-""")
 
